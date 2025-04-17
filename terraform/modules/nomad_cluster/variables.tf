@@ -43,16 +43,6 @@ variable "server_count" {
   type        = number
 }
 
-variable "client_min_size" {
-  description = "Minimum number of Nomad client nodes"
-  type        = number
-}
-
-variable "client_max_size" {
-  description = "Maximum number of Nomad client nodes"
-  type        = number
-}
-
 variable "client_desired_size" {
   description = "Desired number of Nomad client nodes"
   type        = number

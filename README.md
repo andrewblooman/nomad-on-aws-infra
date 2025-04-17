@@ -16,6 +16,8 @@ This repository contains Terraform configurations to deploy a Nomad cluster on A
 
 ## Architecture Overview
 
+![Architecture Diagram](/resources/image.png)
+
 The infrastructure includes the following components:
 
 1. **VPC**:

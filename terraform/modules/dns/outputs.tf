@@ -1,6 +1,6 @@
 output "public_zone_id" {
   description = "The ID of the public hosted zone"
-  value       = aws_route53_zone.public.zone_id
+  value       = data.aws_route53_zone.public.zone_id
 }
 
 output "private_zone_id" {

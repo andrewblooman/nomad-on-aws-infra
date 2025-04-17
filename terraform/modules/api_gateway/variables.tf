@@ -38,3 +38,7 @@ variable "waf_enabled" {
   type        = bool
   default     = true
 }
+
+variable "nomad_alb_listener_arn" {
+  type = string
+}

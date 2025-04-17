@@ -84,7 +84,7 @@ resource "aws_apigatewayv2_route" "oidc_config" {
 resource "aws_apigatewayv2_integration" "jwks" {
   api_id             = aws_apigatewayv2_api.nomad.id
   integration_type   = "HTTP_PROXY"
-  integration_uri    = "${var.nomad_alb_dns}/.well-known/jwks.json"
+  integration_uri    = var.nomad_alb_listener_arn
   integration_method = "GET"
   connection_type    = "VPC_LINK"
   connection_id      = aws_apigatewayv2_vpc_link.nomad.id
@@ -93,15 +93,14 @@ resource "aws_apigatewayv2_integration" "jwks" {
 resource "aws_apigatewayv2_integration" "oidc_config" {
   api_id             = aws_apigatewayv2_api.nomad.id
   integration_type   = "HTTP_PROXY"
-  integration_uri    = "${var.nomad_alb_dns}/.well-known/openid-configuration"
+  integration_uri    = var.nomad_alb_listener_arn
   integration_method = "GET"
   connection_type    = "VPC_LINK"
   connection_id      = aws_apigatewayv2_vpc_link.nomad.id
 }
-
-# WAF Web ACL
+/*
+# WAF Web ACL - Always enabled
 resource "aws_wafv2_web_acl" "api_gateway" {
-  count       = var.waf_enabled ? 1 : 0
   name        = "nomad-api-waf"
   description = "WAF for Nomad API Gateway"
   scope       = "REGIONAL"
@@ -213,9 +212,12 @@ resource "aws_wafv2_web_acl" "api_gateway" {
   }
 }
 
-# WAF Web ACL Association with API Gateway
+# WAF Web ACL Association with API Gateway - Always enabled
 resource "aws_wafv2_web_acl_association" "api_gateway" {
-  count        = var.waf_enabled ? 1 : 0
-  resource_arn = aws_apigatewayv2_stage.nomad.arn
-  web_acl_arn  = aws_wafv2_web_acl.api_gateway[0].arn
+  resource_arn = "arn:aws:apigateway:${data.aws_region.current.name}::/apis/${aws_apigatewayv2_api.nomad.id}/stages/${aws_apigatewayv2_stage.nomad.name}"
+  web_acl_arn  = aws_wafv2_web_acl.api_gateway.arn
 }
+
+# Get current AWS region
+data "aws_region" "current" {}
+*/

@@ -37,6 +37,7 @@ module "certificate" {
   api_domain     = "api.${var.domain_name}"
 }
 
+
 # Load Balancer Module
 module "load_balancer" {
   source = "../../modules/load_balancer"
@@ -49,6 +50,7 @@ module "load_balancer" {
   public_zone_id    = module.dns.public_zone_id
 }
 
+/*
 # OIDC Provider Module
 module "oidc_provider" {
   source = "../../modules/oidc_provider"
@@ -57,6 +59,8 @@ module "oidc_provider" {
   api_url       = "https://api.${var.domain_name}"
   provider_name = "${var.cluster_name}-nomad-provider"
 }
+*/
+
 
 # API Gateway Module
 module "api_gateway" {
@@ -70,7 +74,10 @@ module "api_gateway" {
   api_domain      = "api.${var.domain_name}"
   public_zone_id  = module.dns.public_zone_id
   waf_enabled     = var.waf_enabled
+  nomad_alb_listener_arn = module.load_balancer.alb_listener_arn
 }
+
+
 
 # Nomad Cluster Module
 module "nomad_cluster" {
@@ -85,8 +92,6 @@ module "nomad_cluster" {
   server_instance_type = var.server_instance_type
   client_instance_type = var.client_instance_type
   server_count         = var.server_count
-  client_min_size      = var.client_min_size
-  client_max_size      = var.client_max_size
   client_desired_size  = var.client_desired_size
   alb_target_group_arn = module.load_balancer.target_group_arn
   domain_name          = var.domain_name
@@ -141,6 +146,16 @@ module "endpoint_logs" {
   subnet_ids         = module.vpc.private_subnets
   security_group_ids = [module.security.endpoint_sg_id]
 }
+
+module "sts" {
+  source             = "../../modules/vpc-interface-endpoint"
+  vpc_id             = module.vpc.vpc_id
+  region             = var.region
+  service            = "sts"
+  subnet_ids         = module.vpc.private_subnets
+  security_group_ids = [module.security.endpoint_sg_id]
+}
+
 /*
 module "endpoint_s3" {
   source          = "../../modules/vpc-gateway-endpoint"
@@ -148,4 +163,19 @@ module "endpoint_s3" {
   region          = var.region
   service         = "s3"
   route_table_ids = module.vpc.private_route_table_id
+}*/
+
+/*
+module "windows_bastion" {
+  source = "../../modules/windows_bastion"
+  
+  cluster_name          = var.cluster_name
+  vpc_id                = module.vpc.vpc_id
+  public_subnets        = module.vpc.public_subnets
+  key_name              = var.key_name
+  my_ip_address         = "YOUR_IP_ADDRESS"  # Replace with your actual IP (e.g., "203.0.113.1")
+  bastion_instance_type = "t3.large"         # Adjust as needed
+  create_dns_record     = true               # Set to true if you want a DNS record
+  public_zone_id        = module.dns.public_zone_id  # If create_dns_record is true#
+  domain_name           = var.domain_name
 }*/

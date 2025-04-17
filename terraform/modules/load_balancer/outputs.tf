@@ -12,3 +12,8 @@ output "alb_arn" {
   description = "ARN of the ALB"
   value       = aws_lb.nomad_alb.arn
 }
+
+output "alb_listener_arn" {
+  description = "ARN of the ALB listener"
+  value       = aws_lb_listener.nomad_https.arn
+}
